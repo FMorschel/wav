@@ -23,6 +23,7 @@ typedef unsigned int uint32_t;
 typedef unsigned short uint16_t;
 typedef unsigned char uint8_t;
 typedef uint8_t byte;
+typedef uint16_t amostra_t;
 
 // Cabecalho em portugues
 
@@ -76,6 +77,7 @@ int main()
     arquivoSaida = NULL;
     estado_musica_t estado_musica = parado;
     uint32_t segundos = 0;
+    amostra_t amostra;
 
     while (1)
     {
@@ -282,13 +284,10 @@ int main()
 
             fseek(arquivo, 44 + dados_corte.inicio * cabecalho.taxaBytes, SEEK_SET);
 
-            for (int i = 0; i < dados_corte.fim - dados_corte.inicio; i+=2)
+            for (int i = 0; i < (dados_corte.fim - dados_corte.inicio) * dados_corte.cabecalho.taxaAmostragem; i++)
             {
-                byte amostra[2];
-                fread(&amostra[0], 1, 1, arquivo);
-                fread(&amostra[1], 1, 1, arquivo);
-                fwrite(&amostra[0], 1, 1, arquivoSaida);
-                fwrite(&amostra[1], 1, 1, arquivoSaida);
+                fread(&amostra, 2, 1, arquivo);
+                fwrite(&amostra, 2, 1, arquivoSaida);
             }
 
             fclose(arquivoSaida);
@@ -415,11 +414,11 @@ cabecalho_t cortarCabecalho(cabecalho_t cabecalho, dados_corte_t dados_corte)
     cabecalho_t cabecalho_cortado;
     cabecalho_cortado = cabecalho;
 
-    int bytesPerSecond = cabecalho.taxaBytes;
-    int inicioBytes = dados_corte.inicio * bytesPerSecond;
-    int fimBytes = dados_corte.fim * bytesPerSecond;
+    int durationInSeconds = dados_corte.fim - dados_corte.inicio;
+    int numSamples = durationInSeconds * cabecalho.taxaAmostragem;
+    int numBytes = numSamples * cabecalho.bitsPorAmostra / 8;
 
-    cabecalho_cortado.subchunk2Size = fimBytes - inicioBytes;
+    cabecalho_cortado.subchunk2Size = numBytes;
     cabecalho_cortado.tamanho = cabecalho_cortado.subchunk2Size + 36;
 
     return cabecalho_cortado;
