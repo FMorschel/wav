@@ -85,7 +85,7 @@ int main()
         {
             do
             {
-                printf("Digite o nome do arquivo BMP: ");
+                printf("Digite o nome do arquivo WAV: ");
                 gets(nomeArquivo);
                 // Se a extensao é .bmp ou se está sem extensao colocar e testar se encontra
                 if ((strstr(nomeArquivo, ".wav") == NULL) && (strstr(nomeArquivo, ".WAV") == NULL))
@@ -134,7 +134,7 @@ int main()
             // Testar por 16
             if (cabecalho.subchunk1Size != 16)
             {
-                printf("Arquivo nao eh PCM!\n");
+                printf("Arquivo nao eh PCM!\n"); // PCM = Pulse Code Modulation (sem compressao)
                 printf("Subchunk1Size: %d\n", cabecalho.subchunk1Size);
                 fclose(arquivo);
                 arquivo = NULL;
@@ -143,7 +143,7 @@ int main()
             }
 
             // Testar por 1
-            if (cabecalho.formatoAudio != 1)
+            if (cabecalho.formatoAudio != 1) 
             {
                 printf("Arquivo nao eh PCM!\n");
                 printf("FormatoAudio: %d\n", cabecalho.formatoAudio);
@@ -156,7 +156,7 @@ int main()
             // Somente audios mono
             if (cabecalho.numCanais != 1)
             {
-                printf("Arquivo nao eh mono!\n");
+                printf("Arquivo nao eh mono!\n"); 
                 printf("NumCanais: %d\n", cabecalho.numCanais);
                 fclose(arquivo);
                 arquivo = NULL;
@@ -284,7 +284,7 @@ int main()
 
             fseek(arquivo, 44 + dados_corte.inicio * cabecalho.taxaBytes, SEEK_SET);
 
-            for (int i = 0; i < (dados_corte.fim - dados_corte.inicio) * dados_corte.cabecalho.taxaAmostragem; i++)
+            for (int i = 0; i < ((dados_corte.fim - dados_corte.inicio) * dados_corte.cabecalho.taxaAmostragem); i++)
             {
                 fread(&amostra, 2, 1, arquivo);
                 fwrite(&amostra, 2, 1, arquivoSaida);
